@@ -1,0 +1,32 @@
+name: Deploy to GitHub Pages
+on:
+  push:
+    branches:
+      - main # 这里指定在哪个分支上推送代码时触发工作流，你可以根据实际情况修改
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node -version: '20'
+      - name: Install dependencies
+        run: npm install
+      - name: Build the project
+        run: npm run build # 假设你的项目构建命令是npm run build，如果不是，请替换为实际的构建命令
+      - name: Setup Pages
+        uses: actions/configure -pages@v5
+      - name: Upload artifact
+        uses: actions/upload -pages -artifact@v3
+        with:
+          path:./dist # 这里的dist是构建输出目录，你需要根据实际情况修改为你的项目构建输出目录
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy -pages@v4

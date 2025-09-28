@@ -5,5 +5,5 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   plugins: [vue()],
   // 部署到GitHub Pages需要设置base路径（替换为你的仓库名称）
-  base: '/'
+  base: '/bookmark-manager'
 })
