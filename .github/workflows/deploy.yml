@@ -2,31 +2,44 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main # 这里指定在哪个分支上推送代码时触发工作流，你可以根据实际情况修改
+      - main  # 推送代码到 main 分支时触发部署（根据你的主分支名调整，如 master）
 permissions:
   contents: read
   pages: write
-  id-token: write
+  id-token: write  # GitHub Pages 部署必需的权限
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # 使用 Ubuntu 系统运行
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      # 1. 拉取仓库代码
+      - name: Checkout code
+        uses: actions/checkout@v4  # 注意：uses 后面的动作名不能有空格，格式为 "作者/动作名@版本"
+
+      # 2. 安装 Node.js（匹配你的项目 Node 版本）
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node -version: '20'
+          node-version: '22'  # 修复：连字符正确，且值用引号包裹
+
+      # 3. 安装项目依赖
       - name: Install dependencies
-        run: npm install
-      - name: Build the project
-        run: npm run build # 假设你的项目构建命令是npm run build，如果不是，请替换为实际的构建命令
-      - name: Setup Pages
-        uses: actions/configure -pages@v5
-      - name: Upload artifact
-        uses: actions/upload -pages -artifact@v3
+        run: npm install  # 如果用 yarn，替换为 yarn install
+
+      # 4. 构建项目（生成静态文件）
+      - name: Build project
+        run: npm run build  # 确保 package.json 中有 "build" 脚本（Vite 项目默认有）
+
+      # 5. 配置 GitHub Pages 环境
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5  # 修复：动作名无空格，用连字符连接
+
+      # 6. 上传构建产物（作为部署 artifact）
+      - name: Upload build artifact
+        uses: actions/upload-pages-artifact@v3  # 修复：动作名格式正确
         with:
-          path:./dist # 这里的dist是构建输出目录，你需要根据实际情况修改为你的项目构建输出目录
+          path: ./dist  # 修复：path 字段格式正确（Vite 项目构建输出目录默认是 dist，无需修改）
+
+      # 7. 部署到 GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy -pages@v4
+        uses: actions/deploy-pages@v4  # 修复：动作名格式正确
