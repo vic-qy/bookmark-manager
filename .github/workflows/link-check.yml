@@ -1,0 +1,32 @@
+name: 书签链接有效性检测
+on:
+  schedule:
+    - cron: '0 2 * * *' # 每天凌晨2点执行
+  workflow_dispatch: # 支持手动触发
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 安装Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 安装依赖
+        run: npm install axios
+
+      - name: 执行链接检测脚本
+        run: node .github/scripts/check-links.js
+        env:
+          BOOKMARK_PAGE_URL: ${{ secrets.BOOKMARK_PAGE_URL }} # 仓库Secrets中配置的页面链接
+
+      - name: 推送失效链接记录到仓库
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 更新失效链接记录
+          file_pattern: invalid-links.json
+          branch: main # 对应部署的分支
